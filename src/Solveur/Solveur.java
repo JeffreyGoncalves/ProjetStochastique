@@ -1,16 +1,18 @@
 package Solveur;
 
-import Données.*;
+import Problème.*;
 
-public abstract class Solveur {
+public abstract class Solveur<T> {
 
+	//Attributs
+	protected ProblemeLineaire<T> probleme;
+	protected AlgorithmeIteratif iteratif;
+	
 	//Constructeur
 	public Solveur() {
 		// TODO Auto-generated constructor stub
 	}
 	
 	//Methodes
-	public abstract Boolean[][] resolution();
-	
-
+	public abstract T resolution();
 }

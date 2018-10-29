@@ -1,35 +1,27 @@
 package Problème;
 
-public class PVC extends ProblemeLineaire {
+public abstract class PVC extends ProblemeLineaire<Boolean[][]> {
 
-	//attributs
-	private Boolean stochastique;
-	private Boolean[][] solutionActuelle;
-	private Boolean[][] solutionOptimale;
+	//Attributs
+	protected boolean stochastique;
 	
-	//constructeur
-	public PVC() {
-		// TODO Auto-generated constructor stub
+	//Constructeur
+	public PVC(boolean minimisation) {
+		super(minimisation);
 	}
 	
 	//Methodes
-	public Boolean[][] genererVoisin(){
-		return null;
-	}
-	public float fonctionObjectif() {	
-		return 0.1f;
-	}
+	public abstract Boolean[][] genererVoisin();
+	
+	public abstract float fonctionObjectif(typeSolution type);
+	
+	public abstract boolean solutionValide();
 	
 	public void genererSolutionInitiale() {
-		
-	}
-	
-	public Boolean solutionValide() {
-		return true;
+		// TODO : generer une solution initiale
 	}
 
-	
-	//getters & setters
+	//Getters & setters
 	public Boolean getStochastique() {
 		return stochastique;
 	}
@@ -37,22 +29,4 @@ public class PVC extends ProblemeLineaire {
 	public void setStochastique(Boolean stochastique) {
 		this.stochastique = stochastique;
 	}
-
-	public Boolean[][] getSolutionActuelle() {
-		return solutionActuelle;
-	}
-
-	public void setSolutionActuelle(Boolean[][] solutionActuelle) {
-		this.solutionActuelle = solutionActuelle;
-	}
-
-	public Boolean[][] getSolutionOptimale() {
-		return solutionOptimale;
-	}
-
-	public void setSolutionOptimale(Boolean[][] solutionOptimale) {
-		this.solutionOptimale = solutionOptimale;
-	}
-
-	
 }

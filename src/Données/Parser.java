@@ -2,23 +2,22 @@ package Données;
 
 public abstract class Parser {
 
-	private String fichier;
+	protected String fichier;
 	
 	//Constructeur
-		public Parser() {
-			
-		}
-		
-		//Methodes
-		public void lireDonnees() {
-		}
+	public Parser(String fichier) {
+		this.fichier = fichier;
+	}
+	
+	//Methodes
+	public abstract void lireDonnees();
 
-		//Getters & Setters
-		public String getFichier() {
-			return fichier;
-		}
+	//Getters & Setters
+	public String getFichier() {
+		return fichier;
+	}
 
-		public void setFichier(String fichier) {
-			this.fichier = fichier;
-		}	
+	public void setFichier(String fichier) {
+		this.fichier = fichier;
+	}	
 }
