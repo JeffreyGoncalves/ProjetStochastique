@@ -1,37 +1,60 @@
 package Problème;
 
-public abstract class ProblemeLineaire {
+import Données.*;
 
-	//attributs
-	private Boolean minimisation;
-	
-	//constructeur
-	public ProblemeLineaire() {
-		// TODO Auto-generated constructor stub
-	}
-	
-	//Methodes
-	public float fonctionObjectif() {	
-		return 0.1f;
-	}
-	
-	public void genererSolutionInitiale() {
-		
-	}
-	
-	public Boolean solutionValide() {
-		return true;
-	}
+public abstract class ProblemeLineaire<T> {
 
-	//getters & setters
-	public Boolean getMinimisation() {
-		return minimisation;
+	//Attributs
+	protected boolean minimisation;
+	protected Donnees donnees;
+	protected T solutionActuelle;
+	protected T solutionTemporaire;
+	protected T solutionOptimale;
+	
+	public enum typeSolution {
+		actuelle, optimale, temporaire
 	}
-
-	public void setMinimisation(Boolean minimisation) {
+	
+	//Constructeur
+	public ProblemeLineaire(boolean minimisation) {
 		this.minimisation = minimisation;
 	}
 	
+	//Methodes
+	public abstract T genererVoisin();
 	
+	public abstract float fonctionObjectif(typeSolution type);
 	
+	public abstract void genererSolutionInitiale();
+	
+	public abstract boolean solutionValide();
+
+	//Getters & setters
+	public boolean getMinimisation() {
+		return minimisation;
+	}
+	
+	public T getSolutionActuelle() {
+		return solutionActuelle;
+	}
+
+	public void setSolutionActuelle(T solutionActuelle) {
+		this.solutionActuelle = solutionActuelle;
+	}
+	
+	public T getSolutionTemporaire() {
+		return solutionActuelle;
+	}
+
+	public void setSolutionTemporaire(T solutionTemporaire) {
+		this.solutionTemporaire = solutionTemporaire;
+	}
+
+	public T getSolutionOptimale() {
+		return solutionOptimale;
+	}
+
+	public void setSolutionOptimale(T solutionOptimale) {
+		this.solutionOptimale = solutionOptimale;
+	}
 }

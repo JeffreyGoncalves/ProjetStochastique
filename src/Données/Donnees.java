@@ -2,12 +2,9 @@ package Données;
 
 public abstract class Donnees {
 
-	//Constructeur
-	public Donnees() {
-		
-	}
+	//Attributs
+	protected Parser parser;
 	
 	//Methodes
-	public void initialiserDonnees() {
-	}
+	public abstract void initialiserDonnees();
 }
