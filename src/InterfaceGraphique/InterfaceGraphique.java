@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
@@ -27,9 +28,13 @@ public class InterfaceGraphique {
 	public InterfaceGraphique() {
 		
 		frame = new JFrame();
+		frame.setTitle("Projet d'Optimisation Stochastique");
 		fenetre = new JPanel();
 		fenetre.setLayout(new BoxLayout(fenetre,BoxLayout.PAGE_AXIS));
+		JPanel options = new JPanel();
+		options.setLayout(new BoxLayout(options,BoxLayout.PAGE_AXIS));
 		frame.add(fenetre, BorderLayout.WEST);
+		fenetre.add(Box.createRigidArea(new Dimension(0,50)));
 		
 		//ComboBox du choix du probleme
 		String[] pbOptions = {"Problème du Voyageur de Commerce", "Autre"};
@@ -44,9 +49,19 @@ public class InterfaceGraphique {
 
             
 		};
-		choixProbleme.setRenderer(new MyComboBoxRenderer("Choix du Problème à résoudre"));
+		choixProbleme.setRenderer(new MyComboBoxRenderer("Choix du problème à résoudre"));
 		choixProbleme.setSelectedIndex(-1);
-		fenetre.add(choixProbleme,Component.CENTER_ALIGNMENT);
+		choixProbleme.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				choixP = (String) choixProbleme.getSelectedItem();
+				
+			}
+		});
+		options.add(choixProbleme,Component.CENTER_ALIGNMENT);
+		
 		
 		//ComboBox du choix de la methode
 		String[] methodesOptions = {"Recuit simulé déterministe", "Recuit simulé stochastique", "CPLEX déterministe", "CPLEX stochastique"};
@@ -61,11 +76,35 @@ public class InterfaceGraphique {
 
             
 		};
-		choixMethode.setRenderer(new MyComboBoxRenderer("Choix de la Méthode de Résolution"));
+		choixMethode.setRenderer(new MyComboBoxRenderer("Choix de la méthode de résolution"));
 		choixMethode.setSelectedIndex(-1);
-		fenetre.add(choixMethode,Component.CENTER_ALIGNMENT);
+		choixMethode.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				choixM = (String) choixMethode.getSelectedItem();
+				
+			}
+		});
+		options.add(choixMethode,Component.CENTER_ALIGNMENT);
+		
+		
+		
+		TitledBorder timeBorder = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Options de résolution");
+		Font timeFont = new Font("Arial",Font.BOLD,15);
+		timeBorder.setTitleFont(timeFont);
+		options.setBorder(timeBorder);
+		fenetre.add(options,Component.CENTER_ALIGNMENT);
+		
+		fenetre.add(Box.createRigidArea(new Dimension(0,50)));
 		
 		//Filechooser
+		JPanel fichierPanel = new JPanel();
+		JLabel ltextBox = new JLabel("Fichier choisi: ");
+		JTextField textBox = new JTextField();
+		fichierPanel.setLayout(new BoxLayout(fichierPanel, BoxLayout.PAGE_AXIS));
+		fichierPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 		fichier = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 		fichier.setDialogTitle("Choisissez un fichier de données");
 		fichier.setAcceptAllFileFilterUsed(false);
@@ -79,17 +118,38 @@ public class InterfaceGraphique {
 				
 				int returnValue = fichier.showOpenDialog((Component)e.getSource());
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
-					System.out.println(fichier.getSelectedFile().getPath());
+					cheminFichier = fichier.getSelectedFile().getPath();
+					textBox.setText(cheminFichier);
 				}
 				
 			}
 		});
 		
-		fenetre.add(choixFichier, Component.CENTER_ALIGNMENT);
+		fichierPanel.add(choixFichier, BorderLayout.WEST);
+		
+		  if(cheminFichier != null) {
+			  
+			  textBox.setText(cheminFichier);
+		  }
+		  else {
+			  textBox.setText("Choisir un fichier");
+		  }
+		 textBox.setMaximumSize(new Dimension(500,20));
+		 fichierPanel.add(ltextBox,Component.LEFT_ALIGNMENT);
+		 fichierPanel.add(textBox, Component.LEFT_ALIGNMENT);
+		 timeBorder = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), "Sélection de fichier");
+		 timeBorder.setTitleFont(timeFont);
+		 fichierPanel.setBorder(timeBorder);
+		 
+		 fenetre.add(fichierPanel, BorderLayout.WEST);
+		 fenetre.add(Box.createRigidArea(new Dimension(0,50)));
 		
 		//bouton de résolution
+		JPanel boutonR = new JPanel();
+		boutonR.setLayout(new BoxLayout(boutonR, BoxLayout.PAGE_AXIS));
+		boutonR.setAlignmentX(Component.CENTER_ALIGNMENT);
 		resolution = new JButton("Résolution");
-		resolution.setFont(new Font("Arial", Font.BOLD, 15));
+		resolution.setFont(new Font("Arial", Font.BOLD, 30));
 		resolution.setBackground(Color.GREEN);
 		resolution.addActionListener(new ActionListener() {
 			
@@ -100,11 +160,12 @@ public class InterfaceGraphique {
 				
 			}
 		});
-		fenetre.add(resolution,Component.CENTER_ALIGNMENT);
+		boutonR.add(resolution, Component.LEFT_ALIGNMENT);
+		fenetre.add(boutonR);
 		
 		//Canvas
 		representation = new Canvas();
-		representation.setSize(500, 500);
+		representation.setSize(400, 400);
 		frame.add(representation, BorderLayout.EAST);
 		
 		//Options de frame
