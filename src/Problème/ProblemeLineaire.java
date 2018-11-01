@@ -27,7 +27,7 @@ public abstract class ProblemeLineaire<T> {
 	
 	public abstract void genererSolutionInitiale();
 	
-	public abstract boolean solutionValide();
+	public abstract boolean solutionValide(T solution);
 
 	//Getters & setters
 	public boolean getMinimisation() {
@@ -43,7 +43,7 @@ public abstract class ProblemeLineaire<T> {
 	}
 	
 	public T getSolutionTemporaire() {
-		return solutionActuelle;
+		return solutionTemporaire;
 	}
 
 	public void setSolutionTemporaire(T solutionTemporaire) {
@@ -56,5 +56,13 @@ public abstract class ProblemeLineaire<T> {
 
 	public void setSolutionOptimale(T solutionOptimale) {
 		this.solutionOptimale = solutionOptimale;
+	}
+	
+	public Donnees getDonnees() {
+		return donnees;
+	}
+	
+	public void setDonnees(Donnees donnees) {
+		this.donnees = donnees;
 	}
 }

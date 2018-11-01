@@ -5,20 +5,16 @@ import Données.DonneesPVC;
 public class PVCStochastique extends PVC {
 
 	//Constructeur
-	public PVCStochastique(boolean minimisation, String fichier) {
-		super(minimisation);
+	public PVCStochastique(String fichier) {
+		super();
 		
 		// Initialise les données stochastiques du PVC
+		stochastique = true;
 		donnees = new DonneesPVC(fichier);
 		donnees.initialiserDonnees();
 	}
 	
-	//Methodes
-	public Boolean[][] genererVoisin(){
-		// TODO : coder 2-opt
-		return null;
-	}
-	
+	//Methodes	
 	public float fonctionObjectif(typeSolution type) {
 		float[][] contraintes = ((DonneesPVC)donnees).getCouts();
 		Boolean[][] solution = (type == typeSolution.actuelle ? solutionActuelle : 
@@ -36,11 +32,5 @@ public class PVCStochastique extends PVC {
 		}
 		
 		return objectif;
-	}
-
-	@Override
-	public boolean solutionValide() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

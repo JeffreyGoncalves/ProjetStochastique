@@ -2,6 +2,7 @@ package Solveur;
 
 import java.util.Random;
 
+import Problème.*;
 import Problème.ProblemeLineaire.typeSolution;
 
 public class RecuitSimule<T> extends Solveur<T> {
@@ -12,7 +13,8 @@ public class RecuitSimule<T> extends Solveur<T> {
 	private ParametresRecuit<T> parametres;
 	
 	//Constructeur
-	public RecuitSimule(ParametresRecuit<T> parametres) {
+	public RecuitSimule(ParametresRecuit<T> parametres, ProblemeLineaire<T> probleme) {
+		super(probleme);
 		this.parametres = parametres;
 	}
 
@@ -20,10 +22,10 @@ public class RecuitSimule<T> extends Solveur<T> {
 	@Override
 	public T resolution() {
 		temperature = parametres.getTemperatureInitiale();
-		
-		// TODO : tester le recuit
-		
+		probleme.genererSolutionInitiale();	
+		System.out.println("Cout total initial : " + probleme.fonctionObjectif(typeSolution.optimale));
 		bouclePrincipale();
+		System.out.println("Cout total final : " + probleme.fonctionObjectif(typeSolution.optimale));
 		
 		return probleme.getSolutionOptimale();
 	}
@@ -44,7 +46,7 @@ public class RecuitSimule<T> extends Solveur<T> {
 			// X <-- X'
 			probleme.setSolutionActuelle(probleme.getSolutionTemporaire());
 			nbMouvements++;
-			
+
 			if(probleme.getMinimisation()) { // Si on doit minimiser f
 				if(probleme.fonctionObjectif(typeSolution.actuelle) < probleme.fonctionObjectif(typeSolution.optimale)) {
 					// Xoptimal <-- X
@@ -61,6 +63,7 @@ public class RecuitSimule<T> extends Solveur<T> {
 		else {
 			// Tirer p dans [0,1]
 			float p = (new Random()).nextFloat();
+
 			if(p <= Math.exp((probleme.getMinimisation() ? - delta : delta)/temperature)) {
 				// X <-- X'
 				probleme.setSolutionActuelle(probleme.getSolutionTemporaire());
@@ -72,12 +75,12 @@ public class RecuitSimule<T> extends Solveur<T> {
 	public void bouclePrincipale() {
 		int compteur = 0;
 		do {
+			nbMouvements = 0;
 			boucleMetropolis();
 			float taux = nbMouvements/parametres.getNbIterPalier();
 			if(taux < parametres.getTxAcceptation()) {
 				compteur++;
 			}
-			
 			baisserTemperature();
 			
 		} while(compteur < parametres.getNbPalierMax());

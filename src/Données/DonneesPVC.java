@@ -1,10 +1,13 @@
 package Données;
 
+import java.util.ArrayList;
+
 public class DonneesPVC extends Donnees {
 
 	//Attributs
 	private float[][] couts;
 	private float variance;
+	private ArrayList<Point> coordonnees;
 	
 	//Constructeur
 	public DonneesPVC(String fichier) {
@@ -32,16 +35,16 @@ public class DonneesPVC extends Donnees {
 		return couts;
 	}
 
-	public void setCouts(float[][] couts) {
-		this.couts = couts;
-	}
-
 	public float getVariance() {
 		return variance;
 	}
 
-	public void setVariance(float variance) {
-		this.variance = variance;
+	public ArrayList<Point> getCoordonnees() {
+		return coordonnees;
+	}
+
+	public void setCoordonnees(ArrayList<Point> coordonnees) {
+		this.coordonnees = coordonnees;
 	}
 	
 	// Test de parsing 
@@ -52,17 +55,18 @@ public class DonneesPVC extends Donnees {
 		
 		pvc.initialiserDonnees();
 		
-		float[][] costs = pvc.getCouts();
-		if(costs != null) {
-			for(int i=0;i<costs.length;i++) {
-				for(int j=0;j<costs.length;j++) {
-					if(i == j) {
-						double c = costs[i][j];
-						System.out.println("Cout du trajet partant de la ville " + i + " vers la ville " + j + " = " + c);
-					}
-				}
-			}
-		}
+		//float[][] costs = pvc.getCouts();
+		//if(costs != null) {
+		//	for(int i=0;i<costs.length;i++) {
+		//		for(int j=0;j<costs.length;j++) {
+		//			if(i == j) {
+		//				double c = costs[i][j];
+		//				System.out.println("Cout du trajet partant de la ville " + i + " vers la ville " + j + " = " + c);
+		//			}
+		//		}
+		//	}
+		//}
 	}
 	*/
+	
 }

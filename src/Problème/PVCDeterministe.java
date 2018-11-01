@@ -5,20 +5,16 @@ import Données.*;
 public class PVCDeterministe extends PVC {
 
 	//Constructeur
-	public PVCDeterministe(boolean minimisation, String fichier) {
-		super(minimisation);
+	public PVCDeterministe(String fichier) {
+		super();
 		
 		// Initialise les données déterministes du PVC
+		stochastique = false;
 		donnees = new DonneesPVC(fichier);
 		donnees.initialiserDonnees();
 	}
 
 	//Methodes
-	public Boolean[][] genererVoisin(){
-		// TODO : coder 2-opt
-		return null;
-	}
-	
 	public float fonctionObjectif(typeSolution type) {
 		float[][] contraintes = ((DonneesPVC)donnees).getCouts();
 		Boolean[][] solution = (type == typeSolution.actuelle ? solutionActuelle : 
@@ -32,12 +28,7 @@ public class PVCDeterministe extends PVC {
 				}
 			}
 		}
+		
 		return objectif;
-	}
-
-	@Override
-	public boolean solutionValide() {
-		// TODO Auto-generated method stub
-		return false;
 	}
 }

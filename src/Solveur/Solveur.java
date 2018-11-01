@@ -9,8 +9,8 @@ public abstract class Solveur<T> {
 	protected AlgorithmeIteratif iteratif;
 	
 	//Constructeur
-	public Solveur() {
-		// TODO Auto-generated constructor stub
+	public Solveur(ProblemeLineaire<T> probleme) {
+		this.probleme = probleme;
 	}
 	
 	//Methodes

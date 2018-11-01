@@ -1,5 +1,6 @@
 package Données;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import javax.xml.parsers.SAXParser;
@@ -8,6 +9,9 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import Jama.EigenvalueDecomposition;
+import Jama.Matrix;
 
 public class ParserPVC extends Parser {
 
@@ -34,6 +38,10 @@ public class ParserPVC extends Parser {
 		
 		if(Objects.equals(typeFichier, "xml")) {
 			parseXML();
+			//Instant start = Instant.now();
+			calculPos();      
+			//Instant finish = Instant.now();
+			//System.out.println("Calcul des positions : " + Duration.between(start, finish).toMillis() + "ms");
 		}
 		
 		if(Objects.equals(typeFichier, "tsp")) {
@@ -145,6 +153,46 @@ public class ParserPVC extends Parser {
 			} catch (Exception e) {	 
 			e.printStackTrace();
 		}
+	}
+	
+	private void calculPos() {
+		int dim = donnees.getCouts().length;
+		double[][] M = new double[dim][dim];
+		int i = 0;
+		int j = 0;
+		
+		//double[][] cout = convertFloatsToDoubles(donnees.getCouts());
+		float[][] cout = donnees.getCouts();
+		
+		for (i = 0; i < dim; i++){
+			for (j = 0; j < dim; j++)
+				M[i][j] = ((cout[0][j])*(cout[0][j]) + (cout[i][0])*(cout[i][0]) - (cout[i][j])*(cout[i][j]))*0.5;
+		}
+		
+		Matrix m = new Matrix(M);
+		EigenvalueDecomposition e = m.eig();
+		Matrix U = e.getV();
+		Matrix S = e.getD();
+
+		int rankrow = S.getRowDimension();
+		int rankcol = S.getColumnDimension();
+		
+		for (i = 0; i < rankcol; i++){
+			for (j = 0; j < rankrow; j++){
+				double a = S.get(i, j);
+				a = Math.sqrt(a);
+				S.set(i, j, a);
+			}
+		}
+		
+		Matrix x = U.times(S);
+		ArrayList<Point> coordonnees = new ArrayList<Point>();
+		for(i = 0; i < dim; i++) {
+			Point ville = new Point((float)(x.get(i, dim - (2 - 0))), (float)(x.get(i, dim - (2 - 1))));
+			coordonnees.add(ville);
+		}
+		
+		donnees.setCoordonnees(coordonnees);
 	}
 
 	//Getters & Setters

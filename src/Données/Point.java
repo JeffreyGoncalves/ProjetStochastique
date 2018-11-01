@@ -2,26 +2,34 @@ package Données;
 
 public class Point {
 
-	private int x;
-	private int y;
+	private float x;
+	private float y;
 	
 	//Constructeurs
 	public Point() {
-		x = 0;
-		y = 0;
+		x = 0.0f;
+		y = 0.0f;
 	}
 	
-	public Point(int abs, int ord) {
+	public Point(float abs, float ord) {
 		x = abs;
 		y = ord;
 	}
 
 	//Getters & Setters
-	public int getX() {
+	public float getX() {
 		return x;
 	}
+	
+	public void setX(float x) {
+		this.x = x;
+	}
 
-	public int getY() {
+	public float getY() {
 		return y;
+	}
+	
+	public void setY(float y) {
+		this.y = y;
 	}
 }

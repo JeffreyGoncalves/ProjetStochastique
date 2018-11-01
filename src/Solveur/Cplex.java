@@ -1,10 +1,10 @@
 package Solveur;
 
-import Données.Donnees;
+import Problème.*;
 import ilog.concert.*;
 import ilog.cplex.*;
 
-public class Cplex extends Solveur {
+public class Cplex extends Solveur<Boolean[][]> {
 
 	//attributs
 	private IloCplex modele;
@@ -14,7 +14,8 @@ public class Cplex extends Solveur {
 	
 	
 	//constructeur
-	public Cplex() {
+	public Cplex(ProblemeLineaire<Boolean[][]> probleme) {
+		super(probleme);
 		// TODO Auto-generated constructor stub
 	}
 

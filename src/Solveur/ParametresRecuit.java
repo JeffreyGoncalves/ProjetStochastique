@@ -7,7 +7,7 @@ import java.util.Random;
 public class ParametresRecuit<T> {
 	
 	//Attributs
-	private boolean verbose = true;
+	private boolean verbose = false;
 	private float temperatureInitiale;
 	private float txAcceptation;
 	private int nbIterPalier;
@@ -16,7 +16,7 @@ public class ParametresRecuit<T> {
 	private ProblemeLineaire<T> probleme;
 	
 	//Constructeur
-	public ParametresRecuit(float init, float taux, int nbIter, int nbPalier, float coef, ProblemeLineaire<T> probleme) {
+	public ParametresRecuit(float taux, int nbIter, int nbPalier, float coef, ProblemeLineaire<T> probleme) {
 		txAcceptation = taux;
 		nbIterPalier = nbIter;
 		nbPalierMax = nbPalier;
@@ -28,8 +28,6 @@ public class ParametresRecuit<T> {
 	
 	//Methode
 	public void calculerTemperatureInitiale() {
-		// TODO : tester cette fonction
-		System.out.print("Calcul de la temperature initiale du recuit : ");
 		probleme.genererSolutionInitiale();
 		
 		temperatureInitiale = 0.05f;
@@ -59,15 +57,12 @@ public class ParametresRecuit<T> {
 						probleme.setSolutionActuelle(probleme.getSolutionTemporaire());
 						nbMouvements++;
 					}
-				} // Fin du palier
-				
-				taux = nbMouvements/nbIterPalier;
-				if(verbose)
-					System.out.println("Temperature : " + temperatureInitiale + ", taux : " + taux * 100 + "%");
-			}
+				}
+			} // Fin du palier
+			taux = (float)nbMouvements/(float)nbIterPalier;
+			if(verbose)
+				System.out.println("Temperature : " + temperatureInitiale + ", taux : " + taux * 100 + "%");
 		}
-		
-		System.out.println(temperatureInitiale + " degrés");
 	}
 
 	//Getters & setters
