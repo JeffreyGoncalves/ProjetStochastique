@@ -1,7 +1,5 @@
 package Application;
 
-import InterfaceGraphique.InterfaceGraphique;
-
 public class Application {
 
 	public static void main(String[] args) {
