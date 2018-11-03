@@ -42,6 +42,7 @@ public class Cplex extends Solveur<Integer[]> {
 			while(!verifSousTours(solution, getNbCities())) {
 				System.out.println("NEW CONSTRAINTS");
 				ajoutContraintesSousTours(solution);
+				System.out.println("HEY ST AJOUTEES !!");
 				solution = resolutionCPLEX();
 				System.out.println("Fin CPLEX boucle");
 			}
@@ -226,6 +227,13 @@ public class Cplex extends Solveur<Integer[]> {
 		}
 		
 		public static boolean verifSousTours(Boolean[][] matriceS, int taille) {
+
+			/*String str = "";
+			for(int j=0; j<matriceS.length;j++) {
+				
+				str += matriceS[92][j];
+			}
+			System.out.println("\n" + str);*/
 			int villeDepart = 0;
 			int cpt = 0;
 			
@@ -292,54 +300,60 @@ public class Cplex extends Solveur<Integer[]> {
 		public ArrayList<Integer[]> stockSousTours(Boolean[][] matriceS){
 			
 			ArrayList<Integer[]> sousTours = new ArrayList<Integer[]>();
-			Integer[] villesRestantes = new Integer[nbCities];
+			ArrayList<Integer> villesRestantes = new ArrayList<Integer>();
 			int cpt = 0;
 			
 			for(int i=0; i < nbCities; i++) {
 				
-				villesRestantes[i] = i;
+				villesRestantes.add(i);
 			}
-			while(compterElementsCycle(villesRestantes) > 0) {
+			while(villesRestantes.size() > 0) {
 				
-				Integer[] tmp = new Integer[compterElementsCycle(villesRestantes)];
-				while(villesRestantes[cpt] == null) {
-					cpt++;
-				}
-				int PVille = villesRestantes[cpt];
-				int n = villesRestantes[cpt];
+				System.out.println("BOUCLE INFINIE ?");
+				
+				ArrayList<Integer> tmp = new ArrayList<Integer>();
+				int PVille = villesRestantes.get(0);
+				int n = villesRestantes.get(0);
 				
 				do {
 					
 					for(int i = 0; i < nbCities; i++) {
-						
 						int compteur = 0;
 						if(matriceS[n][i]) {
 							
-							while(tmp[compteur] != null) {
-								compteur++;
-							}
-							
-							tmp[compteur] = n;
-							villesRestantes[i] = null;
+							tmp.add(n);
+							villesRestantes.remove((Integer)i);
 							n = i;
 							break;
 						}
 					}
 				} while(n != PVille);
-				sousTours.add(tmp);
+				
+				sousTours.add(BooleanArrayHelper.fromALToArray(tmp));
 			}
 			return sousTours;
 		}
 		
+		public void printBooleanArray(Boolean[] array) {
+			
+			String str = "";
+			for(int i=0; i < array.length; i++) {
+				str += array[i] + "\t";
+			}
+			System.out.println(str);
+		}
 		
 		public void ajoutContraintesSousTours(Boolean[][] matriceS) {
 			
-			ArrayList<Integer[]> st = stockSousTours(matriceS);
 			
+			ArrayList<Integer[]> st = stockSousTours(matriceS);
+			System.out.println("DEBUT AJOUT CT");
 			for(int i = 0; i < st.size(); i++) {
 				
+				System.out.println(i + "ème AJOUT CT");
 				ajoutContrainteST(st.get(i));
 			}
+			System.out.println("FIN AJOUT CT");
 		}
 		
 		//getters & setters

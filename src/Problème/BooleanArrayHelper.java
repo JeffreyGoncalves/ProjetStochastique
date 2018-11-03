@@ -1,5 +1,8 @@
 package Problème;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class BooleanArrayHelper {
 	public static Boolean[][] toBoolean(boolean[][] tableau) {
 		Boolean[][] retour = new Boolean[tableau.length][];
@@ -98,5 +101,17 @@ public class BooleanArrayHelper {
         
         return cycle;
 
+	}
+	
+	public static Integer[] fromALToArray(ArrayList<Integer> a) {
+		
+		Integer[] converted = new Integer[a.size()];
+		Iterator<Integer> iter = a.iterator();
+		for(int i = 0; i < converted.length; i++) {
+			
+			converted[i] = iter.next().intValue();
+		}
+		
+		return converted;
 	}
 }
