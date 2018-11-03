@@ -9,8 +9,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
-import DonnÃ©es.DonneesPVC;
-import ProblÃ¨me.*;
+import Données.DonneesPVC;
+import Problème.PVCDeterministe;
+import Problème.PVCStochastique;
+import Problème.ProblemeLineaire;
 import Solveur.*;
 
 public class InterfaceGraphique {
@@ -237,7 +239,18 @@ public class InterfaceGraphique {
 				representation.setLiaisons(liaisons);
 				break;
 			case "CPLEX": 
-				// TODO : cplex
+				int nbCities = representation.getNbVilles();
+				Cplex solveurCplex = new Cplex(pvc, nbCities);
+				
+				Boolean[][] solution = solveurCplex.solvePVC();
+				while(!Cplex.verifSousTours(solution, solveurCplex.getNbCities())) {
+					
+						solveurCplex.remplirCycleSolution(solution);
+						solveurCplex.ajoutContraintesSousTours(solution);
+						solution = solveurCplex.resolution();
+						
+				}
+				representation.setLiaisons(solution);
 				break;
 			}
 		}
