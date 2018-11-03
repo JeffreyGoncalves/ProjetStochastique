@@ -17,18 +17,19 @@ public class PVCDeterministe extends PVC {
 	//Methodes
 	public float fonctionObjectif(typeSolution type) {
 		float[][] contraintes = ((DonneesPVC)donnees).getCouts();
-		Boolean[][] solution = (type == typeSolution.actuelle ? solutionActuelle : 
+		Integer[] solution = (type == typeSolution.actuelle ? solutionActuelle : 
 								type == typeSolution.optimale ? solutionOptimale : solutionTemporaire);
 		float objectif = 0.0f;
 		
-		for(int i = 0; i < contraintes.length; i++) {
-			for(int j = 0; j < contraintes.length; j++) {
-				if(solution[i][j]) {
-					objectif += contraintes[i][j];
-				}
+		for(int i = 0; i < solution.length; i++) {
+			if(i != (solution.length - 1)) {
+				objectif += contraintes[solution[i]][solution[i+1]];
+			}
+			else {
+				objectif += contraintes[solution[i]][solution[0]];
 			}
 		}
-		
+
 		return objectif;
 	}
 }

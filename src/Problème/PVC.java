@@ -6,7 +6,7 @@ import java.util.Set;
 
 import Données.*;
 
-public abstract class PVC extends ProblemeLineaire<Boolean[][]> {
+public abstract class PVC extends ProblemeLineaire<Integer[]> {
 
 	//Attributs
 	protected boolean stochastique;
@@ -17,84 +17,54 @@ public abstract class PVC extends ProblemeLineaire<Boolean[][]> {
 	}
 	
 	//Methodes
-	public Boolean[][] genererVoisin(){	
-		int[] chemin = getChemin(solutionActuelle);
-		int[] voisin = inv2opt(chemin);
-		return BooleanArrayHelper.toBoolean(voisin);
-	}
-	
-	public int[] inv2opt(int[] sommets) {
+	public Integer[] genererVoisin(){	
+		Integer[] twoOpt = solutionActuelle.clone();
 		
-		int ville1 = (new Random()).nextInt(sommets.length);
-		int ville2 = (new Random()).nextInt(sommets.length-1);
+		int ville1 = (new Random()).nextInt(twoOpt.length);
+		int ville2 = (new Random()).nextInt(twoOpt.length-1);
 		if (ville2 >= ville1)
 			ville2++;
 		
 		int iMax = (ville2-ville1)/2;
 		if (iMax < 0)
-			iMax += sommets.length;
+			iMax += twoOpt.length;
 		
 		for (int i = 0; i < iMax; i++) {
 			int i1 = ville1 + i;
-			if (i1 >= sommets.length)
-				i1 -= sommets.length;
+			if (i1 >= twoOpt.length)
+				i1 -= twoOpt.length;
 			
 			int i2 = ville2 - i;
 			if (i2 < 0)
-				i2 += sommets.length;
+				i2 += twoOpt.length;
 			
-			int temp = sommets[i1];
-			sommets[i1] = sommets[i2];
-			sommets[i2] = temp;
+			int temp = twoOpt[i1];
+			twoOpt[i1] = twoOpt[i2];
+			twoOpt[i2] = temp;
 		}
 		
-		return sommets;
+		return twoOpt;
 	}
 	
 	public abstract float fonctionObjectif(typeSolution type);
 	
-	public boolean solutionValide(Boolean[][] solution) {
-		int[] chemin = getChemin(solution);
-
+	public boolean solutionValide(Integer[] chemin) {
+		// Vérifie si aucun élément n'est en double
 		Set<Integer> set = new HashSet<Integer>();
 	    for (Integer each: chemin) if (!set.add(each)) return false;
 	    return true;
 	}
 	
-	private int[] getChemin(Boolean[][] solution) {
-		int nbVillesVisitees = 0;
-		int x = 0;
-		int[] chemin = new int[solution.length];
-		while(nbVillesVisitees < solution.length) {
-			chemin[nbVillesVisitees] = x;
-			for(int y = 0; y < solution.length; y++) {
-				if(solution[x][y]) {
-					nbVillesVisitees++;					
-					x = y;
-					break;
-				}
-			}
-		}
-		
-		return chemin;
-	}
-	
 	public void genererSolutionInitiale() {
 		int tailleSolution = ((DonneesPVC)donnees).getCoordonnees().size();
-		Boolean[][] solutionInitiale = BooleanArrayHelper.initialise(tailleSolution, tailleSolution);
-		
+		Integer[] solutionInitiale = new Integer[tailleSolution];
 		for(int i = 0; i < tailleSolution; i++) {
-			if(i == (tailleSolution - 1)) {
-				solutionInitiale[i][0] = true;
-			}
-			else {
-				solutionInitiale[i][i+1] = true;
-			}
+			solutionInitiale[i] = i;
 		}
 		
-		solutionActuelle = BooleanArrayHelper.clone(solutionInitiale);
-		solutionOptimale = BooleanArrayHelper.clone(solutionInitiale);
-		solutionTemporaire = BooleanArrayHelper.clone(solutionInitiale);
+		solutionActuelle = solutionInitiale.clone();
+		solutionOptimale = solutionInitiale.clone();
+		solutionTemporaire = solutionInitiale.clone();
 	}
 
 	//Getters & setters

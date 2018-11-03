@@ -2,12 +2,12 @@ package Solveur;
 
 import java.util.ArrayList;
 
-import Problème.*;
-import Données.*;
+import ProblÃ¨me.*;
+import DonnÃ©es.*;
 import ilog.concert.*;
 import ilog.cplex.*;
 
-public class Cplex extends Solveur<Boolean[][]> {
+public class Cplex extends Solveur<Integer[]> {
 
 	//attributs
 		private IloCplex modele;
@@ -18,7 +18,7 @@ public class Cplex extends Solveur<Boolean[][]> {
 		
 		
 		//constructeur
-		public Cplex(ProblemeLineaire<Boolean[][]> probleme, int sizeData) {
+		public Cplex(ProblemeLineaire<Integer[]> probleme, int sizeData) {
 			super(probleme);
 			nbCities = sizeData;
 			
@@ -36,29 +36,35 @@ public class Cplex extends Solveur<Boolean[][]> {
 
 		//Methodes
 		@Override
-		public Boolean[][] resolution() {
+		public Integer[] resolution() {
+			Boolean[][] solution = solvePVC();
+			System.out.println("Premiere tentative terminee");
+			while(!verifSousTours(solution, getNbCities())) {
+				System.out.println("NEW CONSTRAINTS");
+				ajoutContraintesSousTours(solution);
+				solution = resolutionCPLEX();
+				System.out.println("Fin CPLEX boucle");
+			}
+			System.out.println("END");
 			
+			return BooleanArrayHelper.getChemin(solution);
+		}
+		
+		public Boolean[][] resolutionCPLEX() {			
 			int ligne = 0,colonne = 0;
 			Boolean[][] solution = new Boolean[nbCities][nbCities];
 			
 		    try {			
-			    
 			    if(((PVC)probleme).getStochastique()) {
-			    	
-			    	// TODO add constraint D
+			    	// TODO ajouter contrainte D
 			    }
 			    
 			//Resolution
 			 modele.solve();
-			
-			
-				
+
 				for(ligne = 0; ligne < nbCities; ligne++) {
 					for(colonne = 0; colonne < nbCities; colonne++) {
-						
 						if(ligne != colonne) {
-							
-							
 							if(modele.getValue(x[ligne][colonne]) == 1.0) {
 								solution[ligne][colonne] = true;
 							}
@@ -67,21 +73,18 @@ public class Cplex extends Solveur<Boolean[][]> {
 							}
 						}
 						else {
-							
 							solution[ligne][colonne] = false;
 						}
 					}
 				}
-			   
-			System.out.println("Cplex process finished successfully !");
-			
 			} catch (IloException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		  
+		    
+		    System.out.println("Cplex process finished successfully !");
 			
-			return solution ;
+			return solution;
 		}
 		
 		public Boolean[][] solvePVC(){
@@ -96,7 +99,6 @@ public class Cplex extends Solveur<Boolean[][]> {
 				x = new IloNumVar[nbCities][];
 				for(int i = 0; i < nbCities; i++)
 					x[i] = modele.boolVarArray(nbCities);
-				IloNumVar[] u = modele.numVarArray(nbCities, 0, Double.MAX_VALUE);
 				
 				// Objectif
 				IloLinearNumExpr obj = modele.linearNumExpr();
@@ -133,8 +135,9 @@ public class Cplex extends Solveur<Boolean[][]> {
 			} catch(IloException e){
 				e.printStackTrace();
 			}
-			return resolution();
+			return resolutionCPLEX();
 		}
+		
 		public void initialisationVariables() {
 			
 			int ligne = 0;
@@ -142,7 +145,6 @@ public class Cplex extends Solveur<Boolean[][]> {
 				
 				x = new IloNumVar[nbCities][nbCities];
 				System.out.println("HELLO");
-				IloNumVar[] u = modele.numVarArray(nbCities, 0, Double.MAX_VALUE); //Pour l'éliminition des sous-tours
 				for (ligne = 0; ligne < nbCities; ligne++) {
 					
 					x[ligne] = modele.boolVarArray(nbCities);
@@ -207,7 +209,7 @@ public class Cplex extends Solveur<Boolean[][]> {
 				
 			}while(villeDepart != 0);
 			
-			afficherCycleSolution();
+			//afficherCycleSolution();
 		}
 		
 		public void afficherCycleSolution() {
@@ -224,16 +226,13 @@ public class Cplex extends Solveur<Boolean[][]> {
 		}
 		
 		public static boolean verifSousTours(Boolean[][] matriceS, int taille) {
-			
 			int villeDepart = 0;
 			int cpt = 0;
 			
 			do {
-				
-				for(int i=0; i < matriceS.length; i++) {
-					
+				for(int i = 0; i < matriceS.length; i++) {
 					if(matriceS[villeDepart][i]) {
-						
+						System.out.println("[" + i + "]");
 						villeDepart = i;
 						break;
 					}
@@ -241,17 +240,16 @@ public class Cplex extends Solveur<Boolean[][]> {
 				
 				cpt++;
 				
-			}while(villeDepart != 0);
+			} while(villeDepart != 0);
 			
-			return cpt == taille;
-			
+			return (cpt == taille);
 		}
 		
 		public void ajoutContrainteST(Integer[] cycle) {
 			
 			
 			
-			afficherCycleSolution();
+			//afficherCycleSolution();
 			try {
 				
 					int secondMembre = compterElementsCycle(cycle) - 1;
@@ -295,7 +293,7 @@ public class Cplex extends Solveur<Boolean[][]> {
 			
 			ArrayList<Integer[]> sousTours = new ArrayList<Integer[]>();
 			Integer[] villesRestantes = new Integer[nbCities];
-			int nbVilles = 0, cpt = 0;
+			int cpt = 0;
 			
 			for(int i=0; i < nbCities; i++) {
 				
@@ -324,7 +322,6 @@ public class Cplex extends Solveur<Boolean[][]> {
 							tmp[compteur] = n;
 							villesRestantes[i] = null;
 							n = i;
-							nbVilles++;
 							break;
 						}
 					}

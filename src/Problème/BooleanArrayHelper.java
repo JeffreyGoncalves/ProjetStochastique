@@ -57,4 +57,46 @@ public class BooleanArrayHelper {
 			System.out.println();
 		}
 	}
+	
+	public static Integer[] getChemin(Boolean[][] solution) {
+		int nbVillesVisitees = 0;
+		int x = 0;
+		Integer[] chemin = new Integer[solution.length];
+		while(nbVillesVisitees < solution.length) {
+			chemin[nbVillesVisitees] = x;
+			for(int y = 0; y < solution.length; y++) {
+				if(solution[x][y]) {
+					nbVillesVisitees++;					
+					x = y;
+					break;
+				}
+			}
+		}
+		
+		return chemin;
+	}
+	
+	public static Integer[] getCheminV2(Boolean[][] solution) {
+        Integer[] cycle = new Integer[solution.length];
+        int villeDepart = 0, cpt = 1;
+        cycle[0] = 0;
+        
+        do {
+            for(int i = 0; i < cycle.length; i++) {
+                
+                if(solution[villeDepart][i]) {
+                    
+                    villeDepart = i;
+                    break;
+                }
+            }
+
+            cycle[cpt] = villeDepart;
+            cpt++;
+            
+        } while(villeDepart != 0);
+        
+        return cycle;
+
+	}
 }

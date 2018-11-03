@@ -11,14 +11,13 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import Données.Point;
-import Problème.BooleanArrayHelper;
 
 public class AffichageVilles extends JPanel implements MouseMotionListener, ComponentListener  {
 	private static final long serialVersionUID = 1L;
 	
 	ArrayList<Point> coordonneesAbsolues;
 	ArrayList<Point> coordonneesAffichage;
-	Boolean[][] liaisons;
+	Integer[] liaisons;
 	
 	private Rectangle.Double tailleFenetre = new Rectangle.Double();
 	
@@ -75,7 +74,7 @@ public class AffichageVilles extends JPanel implements MouseMotionListener, Comp
 		int tailleCote = (this.getWidth() > this.getHeight()) ? this.getHeight() : this.getWidth();
 
 		// Affichage du fond et choix de la couleur des villes
-		g.setColor(Color.BLUE);
+		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, tailleCote, tailleCote);
 		g.setColor(Color.RED);
 		
@@ -90,17 +89,20 @@ public class AffichageVilles extends JPanel implements MouseMotionListener, Comp
 	}
 	
 	public void paintPath(Graphics2D g) {
-		g.setColor(Color.BLACK); 
-		int nbVilles = coordonneesAbsolues.size();
+		g.setColor(Color.GREEN); 
+		int nbVilles = liaisons.length;
 		for (int i = 0; i < nbVilles; i++) {
-			for (int j = 0; j < nbVilles; j++) {
-				if(liaisons[i][j]) {
-					Point debut = coordonneesAffichage.get(i);
-					Point fin = coordonneesAffichage.get(j);
-					g.drawLine((int)debut.getX() + 2, (int)debut.getY() + 2, (int)fin.getX() + 2, (int)fin.getY() + 2);	
-				}
+			if(i != (nbVilles - 1)) {
+				Point debut = coordonneesAffichage.get(liaisons[i]);
+				Point fin = coordonneesAffichage.get(liaisons[i+1]);
+				g.drawLine((int)debut.getX() + 2, (int)debut.getY() + 2, (int)fin.getX() + 2, (int)fin.getY() + 2);	
+			}
+			else {
+				Point debut = coordonneesAffichage.get(liaisons[i]);
+				Point fin = coordonneesAffichage.get(liaisons[0]);
+				g.drawLine((int)debut.getX() + 2, (int)debut.getY() + 2, (int)fin.getX() + 2, (int)fin.getY() + 2);	
 			}			
-		}	
+		}
 	}
 	
 	//Methodes redefinies
@@ -131,14 +133,14 @@ public class AffichageVilles extends JPanel implements MouseMotionListener, Comp
 	//Getters & setters
 	public void setCoordonneesAbsolues(ArrayList<Point> coordonnees) {
 		this.coordonneesAbsolues = coordonnees;	
-		liaisons = BooleanArrayHelper.initialise(coordonnees.size(), coordonnees.size());
+		liaisons = null;
 		
 		setWindowBorders();
 		calculCoordonneesAffichage();
 		repaint();
 	}
 
-	public void setLiaisons(Boolean[][] liaisons) {
+	public void setLiaisons(Integer[] liaisons) {
 		this.liaisons = liaisons;
 		repaint();
 	}

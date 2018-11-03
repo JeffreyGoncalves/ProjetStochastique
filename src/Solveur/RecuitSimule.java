@@ -10,7 +10,11 @@ public class RecuitSimule<T> extends Solveur<T> {
 	//Attributs
 	private float temperature;
 	private int nbMouvements;
+	private int compteur;
 	private ParametresRecuit<T> parametres;
+	
+	private float coutTotalInitial;
+	private float coutTotalFinal;
 	
 	//Constructeur
 	public RecuitSimule(ParametresRecuit<T> parametres, ProblemeLineaire<T> probleme) {
@@ -23,9 +27,11 @@ public class RecuitSimule<T> extends Solveur<T> {
 	public T resolution() {
 		temperature = parametres.getTemperatureInitiale();
 		probleme.genererSolutionInitiale();	
-		System.out.println("Cout total initial : " + probleme.fonctionObjectif(typeSolution.optimale));
+		coutTotalInitial = probleme.fonctionObjectif(typeSolution.optimale);
+		
 		bouclePrincipale();
-		System.out.println("Cout total final : " + probleme.fonctionObjectif(typeSolution.optimale));
+		
+		coutTotalFinal = probleme.fonctionObjectif(typeSolution.optimale);
 		
 		return probleme.getSolutionOptimale();
 	}
@@ -38,26 +44,35 @@ public class RecuitSimule<T> extends Solveur<T> {
 		probleme.setSolutionTemporaire(probleme.genererVoisin());
 	}
 	
+	private boolean verifierDelta(float delta) {
+		if(probleme.getMinimisation())
+			return (delta < 0);
+		else
+			return (delta > 0);
+	}
+	
+	private boolean verifierOptimale() {
+		if(probleme.getMinimisation()) {
+			return probleme.fonctionObjectif(typeSolution.actuelle) < probleme.fonctionObjectif(typeSolution.optimale);
+		}
+		else {
+			return probleme.fonctionObjectif(typeSolution.actuelle) > probleme.fonctionObjectif(typeSolution.optimale);
+		}
+	}
+	
 	public void accepterRefuserMouvement() {
 		float delta = probleme.fonctionObjectif(typeSolution.temporaire) - 
 				probleme.fonctionObjectif(typeSolution.actuelle);
 		
-		if(delta < 0) {
+		if(verifierDelta(delta)) {
 			// X <-- X'
 			probleme.setSolutionActuelle(probleme.getSolutionTemporaire());
 			nbMouvements++;
 
-			if(probleme.getMinimisation()) { // Si on doit minimiser f
-				if(probleme.fonctionObjectif(typeSolution.actuelle) < probleme.fonctionObjectif(typeSolution.optimale)) {
-					// Xoptimal <-- X
-					probleme.setSolutionOptimale(probleme.getSolutionActuelle());
-				}
-			}
-			else { // Si on doit maximiser f
-				if(probleme.fonctionObjectif(typeSolution.actuelle) > probleme.fonctionObjectif(typeSolution.optimale)) {
-					// Xoptimal <-- X
-					probleme.setSolutionOptimale(probleme.getSolutionActuelle());
-				}
+			if(verifierOptimale()) { 
+				// Xoptimal <-- X
+				probleme.setSolutionOptimale(probleme.getSolutionActuelle());
+				compteur = 0;
 			}
 		}
 		else {
@@ -73,7 +88,7 @@ public class RecuitSimule<T> extends Solveur<T> {
 	}
 	
 	public void bouclePrincipale() {
-		int compteur = 0;
+		compteur = 0;
 		do {
 			nbMouvements = 0;
 			boucleMetropolis();
@@ -100,5 +115,17 @@ public class RecuitSimule<T> extends Solveur<T> {
 
 	public void setTemperature(float temperature) {
 		this.temperature = temperature;
+	}
+
+	public float getCoutTotalInitial() {
+		return coutTotalInitial;
+	}
+
+	public float getCoutTotalFinal() {
+		return coutTotalFinal;
+	}
+	
+	public ParametresRecuit<T> getParametres() {
+		return parametres;
 	}
 }

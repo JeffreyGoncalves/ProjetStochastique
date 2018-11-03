@@ -122,13 +122,20 @@ public class ParserPVC extends Parser {
 				public void characters(char ch[], int start, int length) throws SAXException {
 					//On initialise la matrice des couts
 					if(isDescription) {	
-						String description = new String(ch,start,length);
+						String description = new String(ch, start, length);
 						description = description.replaceAll("\\D+", "");
-						int sizeMatrix = Integer.parseInt(description);
+						int tailleMatrice;
+						if(description.equals("")) {
+							tailleMatrice = Integer.parseInt(fichier.replaceAll("\\D+",""));
+						}
+						else {
+							tailleMatrice = Integer.parseInt(description);
+						}
+
 						//System.out.println("Initializing cost matrix of size " + sizeMatrix);
 						
-						donnees.initialiserMatrice(sizeMatrix);
-						donnees.ajouterCout(sizeMatrix - 1, sizeMatrix - 1, -1);
+						donnees.initialiserMatrice(tailleMatrice);
+						donnees.ajouterCout(tailleMatrice - 1, tailleMatrice - 1, -1);
 						isDescription = false;
 					}
 					

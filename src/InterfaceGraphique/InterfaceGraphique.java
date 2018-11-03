@@ -3,6 +3,8 @@ package InterfaceGraphique;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.Duration;
+import java.time.Instant;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -10,9 +12,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 
 import Données.DonneesPVC;
-import Problème.PVCDeterministe;
-import Problème.PVCStochastique;
-import Problème.ProblemeLineaire;
+import Problème.*;
 import Solveur.*;
 
 public class InterfaceGraphique {
@@ -20,6 +20,7 @@ public class InterfaceGraphique {
 	//Attributs
 	private JPanel fenetre;
 	private JFrame frame;
+	private JPanel informations;
 
 	private AffichageVilles representation;
 	private JComboBox<String> choixProbleme;
@@ -31,12 +32,19 @@ public class InterfaceGraphique {
 	private String choixP;
 	private String choixM;
 	
-	private ProblemeLineaire<Boolean[][]> pvc;
+	private JLabel tempsResolution;
+	private JLabel temperatureInitiale;
+	private JLabel coutInitial;
+	private JLabel coutFinal;
+	
+	private ProblemeLineaire<Integer[]> pvc;
+	
+	private long tempsExecution;
 	
 	//Constructeur
 	public InterfaceGraphique() {
 		frame = new JFrame();
-		//frame.setResizable(false);
+		frame.setResizable(false);
 		frame.setTitle("Projet d'Optimisation Stochastique");
 		fenetre = new JPanel();
 		fenetre.setLayout(new BoxLayout(fenetre, BoxLayout.PAGE_AXIS));
@@ -124,6 +132,7 @@ public class InterfaceGraphique {
 					cheminFichier = fichier.getSelectedFile().getPath();
 					nomFichier.setText(fichier.getSelectedFile().getName());
 					
+					afficherInformations("Reset");
 					afficherVillesFichier();
 					autoriserResolution();
 				}
@@ -147,7 +156,7 @@ public class InterfaceGraphique {
 		fichierPanel.setBorder(timeBorder);
 		 
 		fenetre.add(fichierPanel, BorderLayout.WEST);
-		fenetre.add(Box.createRigidArea(new Dimension(0,50)));
+		fenetre.add(Box.createRigidArea(new Dimension(0,25)));
 		
 		// Bouton de resolution
 		JPanel boutonR = new JPanel();
@@ -167,6 +176,12 @@ public class InterfaceGraphique {
 		
 		boutonR.add(resolution, Component.LEFT_ALIGNMENT);
 		fenetre.add(boutonR);
+		
+		fenetre.add(Box.createRigidArea(new Dimension(0, 25)));
+		
+		// Panel d'informations
+		JPanel informations = panelInformations();
+		fenetre.add(informations);
 		
 		// Representation des villes
 		representation = new AffichageVilles();
@@ -231,28 +246,86 @@ public class InterfaceGraphique {
 		if(prblm == "PVC") {
 			switch(choixM) {
 			case "Recuit simule": 
+				afficherInformations("Recuit simule");
 				int nbVilles = representation.getNbVilles();
-				ParametresRecuit<Boolean[][]> parametres = new ParametresRecuit<Boolean[][]>(0.8f, nbVilles * nbVilles, 
+				ParametresRecuit<Integer[]> parametres = new ParametresRecuit<Integer[]>(0.8f, nbVilles * nbVilles, 
 																							100, 0.9f, pvc);
-				Solveur<Boolean[][]> solveurPVC = new RecuitSimule<Boolean[][]>(parametres, pvc);
-				Boolean[][] liaisons = solveurPVC.resolution();
-				representation.setLiaisons(liaisons);
+				RecuitSimule<Integer[]> solveurPVC = new RecuitSimule<Integer[]>(parametres, pvc);
+				Instant start = Instant.now();
+				Integer[] liaisons = solveurPVC.resolution();       
+				Instant finish = Instant.now();
+				tempsExecution = Duration.between(start, finish).toMillis();
+				
+				afficherResolution(liaisons, solveurPVC);
+				
 				break;
 			case "CPLEX": 
+				afficherInformations("CPLEX");
 				int nbCities = representation.getNbVilles();
 				Cplex solveurCplex = new Cplex(pvc, nbCities);
 				
-				Boolean[][] solution = solveurCplex.solvePVC();
-				while(!Cplex.verifSousTours(solution, solveurCplex.getNbCities())) {
-					
-						solveurCplex.remplirCycleSolution(solution);
-						solveurCplex.ajoutContraintesSousTours(solution);
-						solution = solveurCplex.resolution();
-						
-				}
+				Integer[] solution = solveurCplex.resolution();
+//				while(!solveurCplex.verifSousTours(solution)) {
+//					solveurCplex.ajoutContraintesSousTours(solution);
+//					solution = solveurCplex.resolution();
+//				}
 				representation.setLiaisons(solution);
+				
 				break;
 			}
+		}
+	}
+	
+	private void afficherResolution(Integer[] liaisons, RecuitSimule<Integer[]> solveur) {
+		representation.setLiaisons(liaisons);
+		coutInitial.setText(String.valueOf(solveur.getCoutTotalInitial()));
+		coutFinal.setText(String.valueOf(solveur.getCoutTotalFinal()));
+		temperatureInitiale.setText(String.valueOf(solveur.getParametres().getTemperatureInitiale()));
+		if(tempsExecution < 1000)
+			tempsResolution.setText(String.valueOf(tempsExecution) + " ms");
+		else
+			tempsResolution.setText(String.valueOf(tempsExecution / 1000) + " s");
+	}
+	
+	private JPanel panelInformations() {
+		informations = new JPanel();
+		informations.setLayout(new GridLayout(0, 2));
+		TitledBorder border = BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), 
+				"Informations");
+		border.setTitleFont(new Font("Arial", Font.BOLD, 15));
+		informations.setBorder(border);
+		
+		temperatureInitiale = new JLabel("");
+		coutInitial = new JLabel("");
+		coutFinal = new JLabel("");
+		tempsResolution = new JLabel("");
+		
+		informations.add(new JLabel("Temperature initiale : "));
+		informations.add(temperatureInitiale);
+		informations.add(new JLabel("Cout total initial : "));
+		informations.add(coutInitial);
+		informations.add(new JLabel("Cout total final : "));
+		informations.add(coutFinal);
+		informations.add(new JLabel("Temps de resolution : "));
+		informations.add(tempsResolution);
+		informations.setVisible(false);
+		
+		return informations;
+	}
+	
+	private void afficherInformations(String type) {
+		if(type == "Recuit simule") {
+			informations.setVisible(true);
+		}
+		else if (type == "CPLEX") {
+			// TODO : modifier les infos et afficher
+		}
+		else if (type == "Reset"){
+			informations.setVisible(false);
+			tempsResolution.setText("");
+			temperatureInitiale.setText("");
+			coutInitial.setText("");
+			coutFinal.setText("");
 		}
 	}
 
