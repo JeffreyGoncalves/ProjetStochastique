@@ -13,6 +13,7 @@ import javax.swing.filechooser.FileSystemView;
 
 import Données.DonneesPVC;
 import Problème.*;
+import Problème.ProblemeLineaire.typeSolution;
 import Solveur.*;
 
 public class InterfaceGraphique {
@@ -33,6 +34,7 @@ public class InterfaceGraphique {
 	private String choixM;
 	
 	private JLabel tempsResolution;
+	private JLabel tempLabel;
 	private JLabel temperatureInitiale;
 	private JLabel coutInitial;
 	private JLabel coutFinal;
@@ -264,12 +266,17 @@ public class InterfaceGraphique {
 				int nbCities = representation.getNbVilles();
 				Cplex solveurCplex = new Cplex(pvc, nbCities);
 				
+				Instant debut = Instant.now();
 				Integer[] solution = solveurCplex.resolution();
-//				while(!solveurCplex.verifSousTours(solution)) {
-//					solveurCplex.ajoutContraintesSousTours(solution);
-//					solution = solveurCplex.resolution();
-//				}
+				Instant fin = Instant.now();
+				tempsExecution = Duration.between(debut, fin).toMillis();
+
 				representation.setLiaisons(solution);
+				pvc.genererSolutionInitiale();	
+				float coutInitial = pvc.fonctionObjectif(typeSolution.optimale);
+				pvc.setSolutionOptimale(solution);
+				float coutFinal = pvc.fonctionObjectif(typeSolution.optimale);
+				afficherResolution(solution, coutInitial, coutFinal);
 				
 				break;
 			}
@@ -281,6 +288,17 @@ public class InterfaceGraphique {
 		coutInitial.setText(String.valueOf(solveur.getCoutTotalInitial()));
 		coutFinal.setText(String.valueOf(solveur.getCoutTotalFinal()));
 		temperatureInitiale.setText(String.valueOf(solveur.getParametres().getTemperatureInitiale()));
+		if(tempsExecution < 1000)
+			tempsResolution.setText(String.valueOf(tempsExecution) + " ms");
+		else
+			tempsResolution.setText(String.valueOf(tempsExecution / 1000) + " s");
+	}
+	
+	private void afficherResolution(Integer[] liaisons, float cInitial, float cFinal) {
+		representation.setLiaisons(liaisons);
+		coutInitial.setText(String.valueOf(cInitial));
+		coutFinal.setText(String.valueOf(cFinal));
+		temperatureInitiale.setText("Terminé");
 		if(tempsExecution < 1000)
 			tempsResolution.setText(String.valueOf(tempsExecution) + " ms");
 		else
@@ -300,7 +318,8 @@ public class InterfaceGraphique {
 		coutFinal = new JLabel("");
 		tempsResolution = new JLabel("");
 		
-		informations.add(new JLabel("Temperature initiale : "));
+		tempLabel = new JLabel("Temperature initiale : ");
+		informations.add(tempLabel);
 		informations.add(temperatureInitiale);
 		informations.add(new JLabel("Cout total initial : "));
 		informations.add(coutInitial);
@@ -315,10 +334,14 @@ public class InterfaceGraphique {
 	
 	private void afficherInformations(String type) {
 		if(type == "Recuit simule") {
+			tempLabel.setText("Temperature initiale : ");
 			informations.setVisible(true);
 		}
 		else if (type == "CPLEX") {
 			// TODO : modifier les infos et afficher
+			tempLabel.setText("Etat de la resolution : ");
+			temperatureInitiale.setText("En cours");
+			informations.setVisible(true);
 		}
 		else if (type == "Reset"){
 			informations.setVisible(false);
